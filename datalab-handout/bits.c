@@ -198,7 +198,7 @@ int minusOne(void) {
  * so negative x we would get 0x80000000, which equals to (1 << 31)
  */
 int isTmax(int x) {
-  return ~x == (1 << 31);
+  return !((x^(~(x+1)))|(!(~x)));
 }
 /*
  * distinctNegation - returns 1 if x != -x.
@@ -348,13 +348,12 @@ int isPallindrome(int x) {
  *   Rating: 2
  */
 int floatIsEqual(unsigned uf, unsigned ug) {
-    unsigned int f = uf & ~(1 << 31), g = ug & ~(1 << 31);
-    if(f == 0 && g == 0) return 1;
-
-    unsigned exp_mask = (~0) << 23;
-    exp_mask = exp_mask & ~(1 << 31);
 
     unsigned frac_mask = (~0) << 9;
+    unsigned exp_mask = (~0) << 23;
+    unsigned int f = uf & ~(1 << 31), g = ug & ~(1 << 31);
+    if(f == 0 && g == 0) return 1;
+    exp_mask = exp_mask & ~(1 << 31);
     frac_mask = frac_mask >> 9;
     if(((f & exp_mask) == exp_mask && (f & frac_mask)) || ((g & exp_mask) == exp_mask && (g & frac_mask))) return 0;
     // ↑ figure out whether they are +0, -0 || NAN || INF
