@@ -195,6 +195,7 @@ int minusOne(void) {
 
 /*
  * max positive number is 0x7fffffff 
+ * tmax is the only number where you can +1 to get tmin
  * so negative x we would get 0x80000000, which equals to (1 << 31)
  */
 int isTmax(int x) {
@@ -209,11 +210,12 @@ int isTmax(int x) {
  */
 
 /*
- * -x = ~x + 1, we use xor operation to compare 
- * whether they are same
+ * two cases:
+ *     if x == -x, then x+x = 0, so !(x+x) = 1 and !!(x+x) = 0.
+ *     if x != -x, then x+x != 0, so !(x+x) = 0 and !!(x+x) = 1.
  */
 int distinctNegation(int x) {
-  return !!((~x + 1) ^ x);
+  return !!((x+x);
 }
 /* 
  * isGreater - if x > y  then return 1, else return 0 
@@ -226,7 +228,7 @@ int distinctNegation(int x) {
 
 /*
  * we use mask to check whether x and y is the same sign
- * if the same, we can use y - x to check if y >= x it is 0, and it is 1 in contrast
+ * if they are the same, we can use y - x to check if y >= x it is 0, otherwise it is 1
  * if not the same, we need to find which one is positive and which one is negative
  */
 int isGreater(int x, int y) {
@@ -261,7 +263,7 @@ int bitOr(int x, int y) {
  * and x ^ y = (x & ~y) | (~x & y)
  */
 int bitMatch(int x, int y) {
-  return ~(x & ~y | ~x & y);
+  return ~((x & ~y) | (~x & y));
 }
 /* 
  * anyOddBit - return 1 if any odd-numbered bit in word set to 1
@@ -304,7 +306,7 @@ int getByte(int x, int n) {
  * to guarantee x can only be 1 or 0, we use !!x
  */
 int conditional(int x, int y, int z) {
-  return (((~(!(!x))) + 1) & y) | (((~(!x)) + 1) & z);
+  return ((~!!x + 1) & y) | ((~!x + 1) & z);
 }
 /*
  * isPallindrome - Return 1 if bit pattern in x is equal to its mirror image
@@ -348,15 +350,14 @@ int isPallindrome(int x) {
  *   Rating: 2
  */
 int floatIsEqual(unsigned uf, unsigned ug) {
-
-    unsigned frac_mask = (~0) << 9;
-    unsigned exp_mask = (~0) << 23;
-    unsigned int f = uf & ~(1 << 31), g = ug & ~(1 << 31);
-    if(f == 0 && g == 0) return 1;
-    exp_mask = exp_mask & ~(1 << 31);
-    frac_mask = frac_mask >> 9;
-    if(((f & exp_mask) == exp_mask && (f & frac_mask)) || ((g & exp_mask) == exp_mask && (g & frac_mask))) return 0;
-    // ↑ figure out whether they are +0, -0 || NAN || INF
+    unsigned exp_f = (uf >> 23) & 0xff;
+    unsigned exp_g = (ug >> 23) & 0xff;
+    unsigned frac_f = uf & 0x7fffff;
+    unsigned frac_g = ug & 0x7fffff;
+    if ((exp_f == 0xff && frac_f != 0) || (exp_g == 0xff && frac_g != 0))
+        return 0;
+    if ((exp_f == 0 && frac_f == 0) && (exp_g == 0 && frac_g == 0))
+        return 1;
     return uf == ug;
 }
 /* 
